@@ -175,7 +175,13 @@ def train_dino(args):
     elif args.arch in torchvision_models.__dict__.keys():
         student = torchvision_models.__dict__[args.arch]()
         teacher = torchvision_models.__dict__[args.arch]()
-        embed_dim = student.fc.weight.shape[1]
+        try:
+            embed_dim = student.fc.weight.shape[1]
+        except: # some models don't have a fc layer
+            if hasattr(student.classifier, "weight"):  
+                embed_dim = student.classifier.weight.shape[1]
+            else:
+                embed_dim = student.classifier[-1].weight.shape[1]
     else:
         print(f"Unknow architecture: {args.arch}")
 
